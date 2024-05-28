@@ -1,11 +1,19 @@
-import PropTypes from 'prop-types'; 
 import css from './ContactList.module.css'
+import { useDispatch, useSelector } from 'react-redux';
+import { getContacts, getFilter } from '../../redux/selectors';
+import { deleteContact } from '../../redux/contactsSlice';
 
-export const ContactList = ({ contacts, onDeleteClick }) => {
+export const ContactList = () => {
+    const dispatch = useDispatch();
+    const contacts = useSelector(getContacts);
+    const filter = useSelector(getFilter)
+
+    const filteredUserData = contacts.filter(contact =>
+        contact.name.toLowerCase().includes(filter.toLowerCase()));
 
     return (
         <div className={css.div}>
-            {contacts.length > 0 ?
+            {filteredUserData.length > 0 ?
                 (
                     <table className={css.table}>
                         <thead className={css.theader}>
@@ -16,24 +24,20 @@ export const ContactList = ({ contacts, onDeleteClick }) => {
                             </tr>
                         </thead>
                         <tbody className={css.tbody}>
-                            {contacts.map((contact) => (
+                            {filteredUserData.map((contact) => (
                                 <tr key={contact.id}>
                                     <td>{contact.name}</td>
                                     <td>{contact.number}</td>
-                                    <td><button className={css.button} onClick={() => onDeleteClick(contact.id)}>Delete</button></td>
+                                    <td><button className={css.button} onClick={() => dispatch(deleteContact(contact.id))}>Delete</button></td>
                                 </tr>
                             ))
                             }
                         </tbody>
                     </table>
                 ) : (
-                    <p className={css.message}>Your list is empty. Add your first contact!</p>
+                    <p className={css.message}>There is no contacts. </p>
                 )}
         </div>
     )    
 }
 
-ContactList.propTypes = {
-    contacts: PropTypes.array,
-    onDeleteClick: PropTypes.func,
-}
